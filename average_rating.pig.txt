@@ -1,0 +1,14 @@
+-- Load the ratings data from the CSV file
+ratings = LOAD '/final_project/ratings.csv' USING PigStorage(',')  AS (userId:int, movieId:int, rating:float, timestamp:chararray);
+
+-- Group the ratings by movieId
+grouped_ratings = GROUP ratings BY movieId;
+
+-- Calculate the average rating for each movie
+avg_ratings = FOREACH grouped_ratings GENERATE group AS movieId, AVG(ratings.rating) AS avgRating;
+
+-- Sort the results by average rating in descending order (optional)
+sorted_ratings = ORDER avg_ratings BY avgRating DESC;
+
+-- Store the results in an output directory
+STORE sorted_ratings INTO '/user/hdoop/avg_movie_ratings' USING PigStorage(',');
